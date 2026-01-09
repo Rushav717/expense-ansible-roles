@@ -27,6 +27,7 @@
   register: mysql_info
   ignore_errors: true
 
+
 - name: print the output
   ansible.builtin.debug:
     msg: "MYSQL info: {{ mysql_info }}"
