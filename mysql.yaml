@@ -1,7 +1,5 @@
 - name: configuring mysql server
   hosts: mysql
   become: yes
-  #vars_files:
-  #- roles/mysql/vars/pwd.yaml
   roles:
   - mysql
