@@ -1,38 +1,34 @@
-- name: Install mysql server
+- name: Install MySQL libraries
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    executable: pip3.9
+  loop:
+  - cryptography
+  - PyMySQL
+
+- name: Install MySQL server
   ansible.builtin.package:
     name: mysql-server
     state: installed
 
-- name: Start and enable mysql-server
+- name: start and enable mysql server
   ansible.builtin.service:
     name: mysqld
     state: started
-    enabled: true
+    enabled: yes
 
-# Fetch password ONCE from SSM
-- name: Fetch MySQL root password from SSM
-  ansible.builtin.set_fact:
-    mysql_root_password: "{{ lookup('amazon.aws.aws_ssm', '/expense/mysql/mysql_root_password', region='us-east-1', decrypt=True) }}"
-  no_log: true
-
-# Try connecting to MySQL
-- name: Connect to mysql server
+- name: connect to mysql server
   community.mysql.mysql_info:
     login_user: root
-    login_password: "{{ mysql_root_password }}"
-    login_host: "{{ login_host }}"
+    login_password: "{{ lookup('amazon.aws.aws_ssm', '/expense/mysql/mysql_root_password', decrypt=True ) }}"
+    login_host: "{{ mysql_host }}"
   register: mysql_info
-  failed_when: false
+  ignore_errors: true
 
-# Optional debug (safe)
-- name: Print MySQL connection status
+- name: print the output
   ansible.builtin.debug:
-    msg: "MySQL connection failed: {{ mysql_info.failed }}"
+    msg: "MySQL info: {{ mysql_info }}"
 
-# Set root password ONLY if not set
-- name: Setup root password
-  ansible.builtin.command: >
-    mysql_secure_installation --set-root-pass {{ mysql_root_password }}
-  when: mysql_info.failed
-  no_log: true
-  
+- name: setup root password
+  ansible.builtin.command: " mysql_secure_installation --set-root-pass {{ lookup('amazon.aws.aws_ssm', '/expense/mysql/mysql_root_password', decrypt=True ) }} "
+  when: mysql_info.failed is true
