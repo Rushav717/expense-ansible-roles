@@ -1,2 +1,2 @@
 # mysql_root_password: ExpenseApp@1
-login_host: mysql.rushhav.fun
+mysql_host: mysql.rushhav.fun
