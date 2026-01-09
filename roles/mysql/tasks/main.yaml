@@ -19,6 +19,17 @@
     state: started
     enabled: yes
 
+- name: Fetch MySQL root password from SSM
+  set_fact:
+    mysql_root_password: >-
+      {{ lookup(
+          'amazon.aws.aws_ssm',
+          '/expense/mysql/mysql_root_password',
+          region='us-east-1',
+          decrypt=True
+      ) }}
+  no_log: true
+
 - name: connect to mysql server
   community.mysql.mysql_info:
     login_user: root
