@@ -41,7 +41,7 @@
 #     remote_src: yes
 
 - name: include from common role
-  include role:
+  include_role:
     name: common
     tasks_from: main
 
